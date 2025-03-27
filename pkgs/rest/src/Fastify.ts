@@ -1,39 +1,73 @@
-import { IncomingMessage, Server, ServerResponse } from 'node:http';
+import http, { IncomingMessage, Server, ServerResponse } from 'node:http';
 import fastify, { FastifyInstance } from 'fastify';
-import { createFastifyLogger } from '@wb/log';
+import { createFastifyLogger, logError, logInfo } from '@wb/log';
 import cors from '@fastify/cors';
-import { AsyncLocalStorage, AsyncResource } from 'node:async_hooks';
-import { FastifyRequestContextOptions, RequestContext } from './Types';
+import { AsyncResource } from 'node:async_hooks';
+import {
+  asyncResourceSymbol,
+  createAsyncResource,
+  ctx,
+  defaultStoreValues,
+  hasDefaultStoreValuesFactory,
+  hook,
+} from './Context';
+import { createServer } from './Server';
+import type { ListenOptions } from 'net';
+import https from 'https';
 
-const hook: FastifyRequestContextOptions['hook'] = 'onRequest',
-  defaultStoreValues: FastifyRequestContextOptions['defaultStoreValues'] = {
-    user: { id: 'system' },
-  },
-  createAsyncResource: FastifyRequestContextOptions['createAsyncResource'] =
-    undefined;
-
-const hasDefaultStoreValuesFactory = typeof defaultStoreValues === 'function';
-
-const asyncResourceSymbol = Symbol('asyncResource');
-const asyncLocalStorage = new AsyncLocalStorage();
-
-const ctx: RequestContext = {
-  get: (key: any) => {
-    const store = asyncLocalStorage.getStore();
-    return store ? store[key] : undefined;
-  },
-  set: (key, value) => {
-    const store = asyncLocalStorage.getStore();
-    if (store) {
-      store[key] = value;
-    }
-  },
-  getStore: () => {
-    return asyncLocalStorage.getStore();
-  },
-};
 export const Fastify: FastifyInstance<Server, IncomingMessage, ServerResponse> =
   fastify({
+    serverFactory: (
+      fn: (request: http.IncomingMessage, response: http.ServerResponse) => void
+    ) => {
+      const server = await createServer(fn);
+
+      const host = env['HOST'] as string;
+      const path = env['UNIX_SOCKET_PATH'] as string | undefined;
+      const port = env['PORT'] as string;
+
+      let listenOptions: ListenOptions;
+
+      if (path) {
+        listenOptions = { path };
+      } else {
+        listenOptions = {
+          host,
+          port: parseInt(port),
+        };
+      }
+
+      server
+        .listen(listenOptions, () => {
+          const protocol = server instanceof https.Server ? 'https' : 'http';
+
+          logInfo(
+            `Server started at ${
+              listenOptions.port
+                ? `${protocol}://${getAddress(server)}`
+                : getAddress(server)
+            }`
+          );
+
+          process.send?.('ready');
+        })
+        .once('error', (err: any) => {
+          if (err?.code === 'EADDRINUSE') {
+            logError(
+              `${
+                listenOptions.port
+                  ? `Port ${listenOptions.port}`
+                  : getAddress(server)
+              } is already in use`
+            );
+            process.exit(1);
+          } else {
+            throw err;
+          }
+        });
+
+      return server;
+    },
     loggerInstance: createFastifyLogger().logger,
   });
 
@@ -42,7 +76,7 @@ Fastify.register(cors)
   .decorateRequest('ctx', { getter: () => ctx })
   .decorateRequest(asyncResourceSymbol, null);
 
-Fastify.addHook(hook, (req, _res, done) => {
+Fastify.addHook('onRequest', (req, _res, done) => {
   const defaults = hasDefaultStoreValuesFactory
     ? defaultStoreValues(req)
     : defaultStoreValues;

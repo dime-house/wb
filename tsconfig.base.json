@@ -20,7 +20,8 @@
       "@klerick/nx-angular-mf/loadModule": [
         "libs/nx-angular-mf/src/loadModule.ts"
       ],
-      "@wb/const": ["packages/const/src/index.ts"],
+      "@wb/back": ["services/back/src/index.ts"],
+      "@wb/const": ["pkgs/const/src/index.ts"],
       "@wb/db": ["pkgs/db/src/index.ts"],
       "@wb/env": ["pkgs/env/src/index.ts"],
       "@wb/express": ["libs/express/src/index.ts"],

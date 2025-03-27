@@ -1,13 +1,7 @@
 import { FastifyRequest } from 'fastify';
 import { AsyncResource } from 'node:async_hooks';
 
-type CustomRequest = FastifyRequest<{
-  Body: { name: boolean };
-}>;
-
-export interface RequestContextData {
-  // Empty on purpose, to be extended by users of this module
-}
+export interface RequestContextData {}
 
 export interface RequestContext {
   get<K extends keyof RequestContextData>(
@@ -48,5 +42,3 @@ export interface FastifyRequestContextOptions {
   hook?: Hook;
   createAsyncResource?: CreateAsyncResourceFactory;
 }
-
-export const ctx: RequestContext;

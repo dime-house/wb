@@ -1,5 +1,5 @@
-import { post } from './app.js';
 import { FastifyRequest } from 'fastify';
+import { post } from '@wb/rest';
 
 type CustomRequest = FastifyRequest<{
   Body: { name: boolean };

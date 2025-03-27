@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "commonjs"
   },
-  "files": ["global.d.ts"],
+  "files": [],
   "include": [],
   "references": [
     {

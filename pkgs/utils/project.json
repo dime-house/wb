@@ -1,0 +1,20 @@
+{
+  "name": "@wb/utils",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/utils/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/utils",
+        "tsConfig": "packages/utils/tsconfig.lib.json",
+        "packageJson": "packages/utils/package.json",
+        "main": "packages/utils/src/index.ts",
+        "assets": ["packages/utils/*.md"]
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@nx-angular-mf/source",
+  "name": "@wb/source",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "targets": {
     "local-registry": {

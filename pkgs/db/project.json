@@ -1,0 +1,20 @@
+{
+  "name": "@wb/db",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "pkgs/db/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/pkgs/db",
+        "tsConfig": "pkgs/db/tsconfig.lib.json",
+        "packageJson": "pkgs/db/package.json",
+        "main": "pkgs/db/src/index.ts",
+        "assets": ["pkgs/db/*.md"]
+      }
+    }
+  }
+}

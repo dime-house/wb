@@ -1,0 +1,20 @@
+{
+  "name": "@wb/env",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "pkgs/env/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/pkgs/env",
+        "tsConfig": "pkgs/env/tsconfig.lib.json",
+        "packageJson": "pkgs/env/package.json",
+        "main": "pkgs/env/src/index.ts",
+        "assets": ["pkgs/env/*.md"]
+      }
+    }
+  }
+}

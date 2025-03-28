@@ -1,99 +1,131 @@
-import http, { IncomingMessage, Server, ServerResponse } from 'node:http';
-import fastify, { FastifyInstance } from 'fastify';
-import { createFastifyLogger, logError, logInfo } from '@wb/log';
-import cors from '@fastify/cors';
-import { AsyncResource } from 'node:async_hooks';
-import {
-  asyncResourceSymbol,
-  createAsyncResource,
-  ctx,
-  defaultStoreValues,
-  hasDefaultStoreValuesFactory,
-  hook,
-} from './Context';
-import { createServer } from './Server';
-import type { ListenOptions } from 'net';
+import http from 'http';
 import https from 'https';
+import url from 'url';
+import fastify, { FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+import { createTerminus, TerminusOptions } from '@godaddy/terminus';
+import { getConfigFromEnv, useEnv } from '@wb/env';
+import { createFastifyLogger, logError, logInfo } from '@wb/log';
+import { getIPFromReq } from './utils/get-ip-from-req';
 
-export const Fastify: FastifyInstance<Server, IncomingMessage, ServerResponse> =
-  fastify({
-    serverFactory: (
-      fn: (request: http.IncomingMessage, response: http.ServerResponse) => void
-    ) => {
-      const server = await createServer(fn);
+const env = useEnv();
 
-      const host = env['HOST'] as string;
-      const path = env['UNIX_SOCKET_PATH'] as string | undefined;
-      const port = env['PORT'] as string;
-
-      let listenOptions: ListenOptions;
-
-      if (path) {
-        listenOptions = { path };
-      } else {
-        listenOptions = {
-          host,
-          port: parseInt(port),
-        };
-      }
-
-      server
-        .listen(listenOptions, () => {
-          const protocol = server instanceof https.Server ? 'https' : 'http';
-
-          logInfo(
-            `Server started at ${
-              listenOptions.port
-                ? `${protocol}://${getAddress(server)}`
-                : getAddress(server)
-            }`
-          );
-
-          process.send?.('ready');
-        })
-        .once('error', (err: any) => {
-          if (err?.code === 'EADDRINUSE') {
-            logError(
-              `${
-                listenOptions.port
-                  ? `Port ${listenOptions.port}`
-                  : getAddress(server)
-              } is already in use`
-            );
-            process.exit(1);
-          } else {
-            throw err;
-          }
-        });
-
-      return server;
-    },
-    loggerInstance: createFastifyLogger().logger,
-  });
-
-Fastify.register(cors)
-  .decorate('ctx', ctx)
-  .decorateRequest('ctx', { getter: () => ctx })
-  .decorateRequest(asyncResourceSymbol, null);
-
-Fastify.addHook('onRequest', (req, _res, done) => {
-  const defaults = hasDefaultStoreValuesFactory
-    ? defaultStoreValues(req)
-    : defaultStoreValues;
-
-  asyncLocalStorage.run({ ...defaults }, () => {
-    const asyncResource =
-      createAsyncResource != null
-        ? createAsyncResource(req, ctx)
-        : new AsyncResource('context');
-    req[asyncResourceSymbol] = asyncResource;
-    asyncResource.runInAsyncScope(done, req.raw);
-  });
+const app: FastifyInstance = fastify({
+  logger: createFastifyLogger().logger,
+  serverFactory: (handler) => {
+    // Создаем сервер, применяя конфигурацию из env
+    const server = http.createServer(handler);
+    Object.assign(server, getConfigFromEnv('SERVER_'));
+    return server;
+  },
 });
 
-if (hook === 'onRequest' || hook === 'preParsing') {
-  Fastify.addHook('preValidation', (req, _res, done) => {
-    const asyncResource = req[asyncResourceSymbol];
-    asyncResource.runInAsyncScope(done, req.raw);
+// Регистрируем CORS и другие плагины
+app.register(cors);
+
+// Хук для захвата времени начала запроса и исходных метрик сокета
+app.addHook('onRequest', (request, reply, done) => {
+  (request as any).startTime = process.hrtime();
+  const socket = request.raw.socket;
+  socket._metrics = socket._metrics || {
+    in: socket.bytesRead,
+    out: socket.bytesWritten,
+  };
+  done();
+});
+
+// Хук для логирования после завершения обработки запроса
+app.addHook('onResponse', (request, reply, done) => {
+  const socket = request.raw.socket;
+  const startTime: [number, number] = (request as any).startTime;
+  const elapsed = process.hrtime(startTime);
+  const elapsedMs = (elapsed[0] * 1e9 + elapsed[1]) / 1e6;
+
+  const prevIn = socket._metrics?.in || 0;
+  const prevOut = socket._metrics?.out || 0;
+  const metrics = {
+    in: socket.bytesRead - prevIn,
+    out: socket.bytesWritten - prevOut,
+  };
+  socket._metrics = { in: socket.bytesRead, out: socket.bytesWritten };
+
+  const protocol = app.server instanceof https.Server ? 'https' : 'http';
+  const parsedUrl = url.parse(request.raw.url || request.url, true);
+
+  const logData = {
+    request: {
+      method: request.method,
+      url: request.raw.url,
+      path: parsedUrl.pathname,
+      protocol,
+      host: request.headers.host,
+      size: metrics.in,
+      query: parsedUrl.query,
+      headers: request.headers,
+      ip: getIPFromReq(request.raw),
+    },
+    response: {
+      status: reply.statusCode,
+      size: metrics.out,
+      headers: reply.getHeaders(),
+    },
+    duration: elapsedMs.toFixed(),
+  };
+
+  logInfo(JSON.stringify(logData, null, 2));
+  done();
+});
+
+// Опции graceful shutdown через terminus
+const terminusOptions: TerminusOptions = {
+  timeout:
+    typeof env['SERVER_SHUTDOWN_TIMEOUT'] === 'number' &&
+    env['SERVER_SHUTDOWN_TIMEOUT'] >= 0 &&
+    env['SERVER_SHUTDOWN_TIMEOUT'] < Infinity
+      ? env['SERVER_SHUTDOWN_TIMEOUT']
+      : 1000,
+  signals: ['SIGINT', 'SIGTERM', 'SIGHUP'],
+  beforeShutdown: async () => {
+    if (env['NODE_ENV'] !== 'development') {
+      logInfo('Начало отключения сервера...');
+    }
+  },
+  onSignal: async () => {
+    logInfo('Закрываем соединения с БД');
+  },
+  onShutdown: async () => {
+    if (env['NODE_ENV'] !== 'development') {
+      logInfo('Сервер завершил работу. До свидания!');
+    }
+  },
+};
+
+createTerminus(app.server, terminusOptions);
+
+// Определяем параметры прослушивания из env
+const host = env['HOST'] || '0.0.0.0';
+const port = parseInt(env['PORT'] || '3000', 10);
+const socketPath = env['UNIX_SOCKET_PATH'] as string | undefined;
+
+// Запуск сервера
+if (socketPath) {
+  app.listen({ path: socketPath }, (err, address) => {
+    if (err) {
+      logError(err);
+      process.exit(1);
+    }
+    logInfo(`Сервер запущен по сокету ${address}`);
+    process.send?.('ready');
+  });
+} else {
+  app.listen({ host, port }, (err, address) => {
+    if (err) {
+      logError(err);
+      process.exit(1);
+    }
+    logInfo(`Сервер запущен по адресу ${address}`);
+    process.send?.('ready');
   });
 }
+
+export default app;

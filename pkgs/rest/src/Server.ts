@@ -10,7 +10,7 @@ import { createTerminus, TerminusOptions } from '@godaddy/terminus';
 import { logInfo } from '@wb/log';
 
 const env = useEnv();
-export async function createServer<T = any>(
+export async function createServer<T>(
   requestListener: () => Promise<T>
 ): Promise<http.Server> {
   const server = http.createServer(await requestListener());

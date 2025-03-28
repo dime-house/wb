@@ -4,6 +4,7 @@ import { Fastify } from '@wb/rest';
 import { getConfigFromEnv } from '@wb/env';
 
 const { host, port } = getConfigFromEnv('SERVICE_');
+
 try {
   Fastify.register(router);
 

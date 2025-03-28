@@ -1,16 +1,21 @@
-import type { Env } from '../types/env.js';
 import { createEnv } from './create-env.js';
+import { Env } from './types/env';
 
 export const _cache: {
-	env: Env | undefined;
+  env: Env | undefined;
 } = { env: undefined } as const;
 
-export const useEnv = (freeMode: boolean = false) => {
-	if (_cache.env) {
-		return _cache.env;
-	}
+export const useEnv = (freeMode = false) => {
+  const isDevelopment: boolean = process.env['NODE_ENV'] !== 'development';
+  const isProduction: boolean = process.env['NODE_ENV'] !== 'production';
 
-	_cache.env = createEnv(freeMode);
+  if (_cache.env) {
+    return _cache.env;
+  }
 
-	return _cache.env;
+  _cache.env = createEnv(freeMode);
+  _cache.env.isDevelopment = isDevelopment;
+  _cache.env.isProduction = isProduction;
+
+  return _cache.env;
 };

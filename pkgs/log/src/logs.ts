@@ -1,49 +1,49 @@
 import { useLogger } from './useLogger';
 import chalk from 'chalk';
 
-export function logErrorAndExit(message: string, payload?: unknown) {
-  logError(message, payload);
+export function logErrorAndExit(error: string | Error, payload?: unknown) {
+  logError(error, payload);
 
   process.exit(1);
 }
 
-export function logErrorAndThrow(message: string, payload?: unknown) {
-  logError(message, payload);
+export function logErrorAndThrow(error: string | Error, payload?: unknown) {
+  logError(error, payload);
 
-  throw new Error(message);
+  if (error instanceof Error) throw new Error(error.message);
 }
 
-export function logFatal(message: string, payload?: unknown) {
+export function logFatal(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.fatal(chalk.red(message), payload);
+  logger.fatal(chalk.red(error), payload);
 }
 
-export function logError(message: string, payload?: unknown) {
+export function logError(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.error(payload, chalk.red(message));
+  logger.error(payload, chalk.red(error));
 }
 
-export function logWarn(message: string, payload?: unknown) {
+export function logWarn(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.warn(chalk.yellow(message), payload);
+  logger.warn(chalk.yellow(error), payload);
 }
 
-export function logInfo(message: string, payload?: unknown) {
+export function logInfo(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.info(chalk.blue(message), payload);
+  logger.info(chalk.blue(error), payload);
 }
 
-export function logDebug(message: string, payload?: unknown) {
+export function logDebug(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.debug(chalk.cyan(message), payload);
+  logger.debug(chalk.cyan(error), payload);
 }
 
-export function logTrace(message: string, payload?: unknown) {
+export function logTrace(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.trace(chalk.white(message), payload);
+  logger.trace(chalk.white(error), payload);
 }
 
-export function logSuccess(message: string, payload?: unknown) {
+export function logSuccess(error: string | Error, payload?: unknown) {
   const logger = useLogger();
-  logger.success(chalk.green(message), payload);
+  logger.success(chalk.green(error), payload);
 }

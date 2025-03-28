@@ -1,17 +1,15 @@
 import { useEnv } from '@wb/env';
 import { logWarn } from '@wb/log';
 import { isIP } from 'net';
-import express from 'express';
+import http from 'http';
 
-export function getIPFromReq(req: express.Request): string | null {
+export function getIPFromReq(req: http.IncomingMessage): string {
   const env = useEnv();
 
   let ip = req.ip;
 
   if (env['IP_CUSTOM_HEADER']) {
-    const customIPHeaderValue = req.get(
-      env['IP_CUSTOM_HEADER'] as string
-    ) as unknown;
+    const customIPHeaderValue = req.headers[env['IP_CUSTOM_HEADER']] as unknown;
 
     if (
       typeof customIPHeaderValue === 'string' &&

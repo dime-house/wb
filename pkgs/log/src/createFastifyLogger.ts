@@ -4,7 +4,7 @@ import { pinoHttp } from 'pino-http';
 
 const level = process.env['log_level'] || 'trace';
 
-export function createFastifyLogger() {
+export function fastifyLogger() {
   return pinoHttp({
     logger: pino(
       {

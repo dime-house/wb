@@ -4,13 +4,11 @@ import fastify, {
   HookHandlerDoneFunction,
 } from 'fastify';
 import cors from '@fastify/cors';
-import { getConfigFromEnv, useEnv } from '@wb/env';
+import { parseEnv, useEnv } from '@wb/env';
 import { fastifyLogger, logErrorAndThrow, logInfo } from '@wb/log';
 import { getIPFromReq } from './utils/get-ip-from-req';
-import type { Request } from 'express';
 import https from 'https';
 import { useContext } from './store/store';
-import { randomUUID } from 'node:crypto';
 import url from 'url';
 import http from 'http';
 import { createTerminus } from '@godaddy/terminus';
@@ -27,12 +25,10 @@ export function useFastify() {
     logger,
   });
 
-  app.register(cors, getConfigFromEnv('CORS_'));
+  app.register(cors, parseEnv('CORS_'));
 
   app.addHook('onRequest', (request, reply, done) => {
     enterWith({
-      requestId: request.headers['x-request-id'] || randomUUID(),
-      ip: getIPFromReq(request.raw as Request),
       request,
       reply,
       done,
@@ -46,7 +42,6 @@ export function useFastify() {
 
   function requestStart(
     request: FastifyRequest,
-    reply: FastifyReply,
     done: HookHandlerDoneFunction
   ) {
     request.startTime = process.hrtime();
@@ -62,8 +57,8 @@ export function useFastify() {
   }
 
   function requestEnd(
-    request: FastifyRequest,
     reply: FastifyReply,
+    request: FastifyRequest,
     done: HookHandlerDoneFunction
   ) {
     const socket = request.raw.socket;
@@ -111,7 +106,7 @@ export function useFastify() {
   function serverFactory(handler: http.RequestListener) {
     const env = useEnv();
 
-    const { shutdownTimeout } = getConfigFromEnv('SERVER_');
+    const { shutdownTimeout } = parseEnv('SERVER_');
 
     const server = env.HTTPS
       ? https.createServer({}, handler)

@@ -3,7 +3,7 @@ import { logErrorAndExit } from '@wb/log';
 import { Fastify } from '@wb/rest';
 import { getConfigFromEnv } from '@wb/env';
 
-const { host, port } = getConfigFromEnv('SERVICE_');
+const { host, port } = parseEnv('SERVICE_');
 
 try {
   Fastify.register(router);

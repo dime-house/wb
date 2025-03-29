@@ -15,7 +15,7 @@ export async function createServer<T>(
 ): Promise<http.Server> {
   const server = http.createServer(await requestListener());
 
-  Object.assign(server, getConfigFromEnv('SERVER_'));
+  Object.assign(server, parseEnv('SERVER_'));
 
   server.on(
     'request',

@@ -3,16 +3,13 @@ import { set } from 'lodash-es';
 import { toArray } from '@wb/utils';
 import { useEnv } from '../use-env';
 
-export interface GetConfigFromEnvOptions {
+export interface parseEnvOptions {
   omitPrefix?: string | string[];
   omitKey?: string | string[];
   type?: 'camelcase' | 'underscore';
 }
 
-export function getConfigFromEnv(
-  prefix: string,
-  options?: GetConfigFromEnvOptions
-): Record<string, any> {
+export function parseEnv(prefix: string, options?: parseEnvOptions) {
   const env = useEnv();
   const type = options?.type ?? 'camelcase';
 

@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "files": ["global.d.ts"],
+  "include": [],
+  "references": [
+    {
+      "path": "../log"
+    },
+    {
+      "path": "../env"
+    },
+    {
+      "path": "../type"
+    },
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ],
+  "nx": {
+    "addTypecheckTarget": false
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "@dime/restful",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "nx": {
+    "name": "restful",
+    "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "services/restful/dist",
+          "format": [
+            "cjs"
+          ],
+          "bundle": false,
+          "main": "services/restful/src/main.ts",
+          "tsConfig": "services/restful/tsconfig.app.json",
+          "assets": [
+            "services/restful/src/assets"
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
+      "serve": {
+        "executor": "@nx/js:node",
+        "defaultConfiguration": "development",
+        "dependsOn": [
+          "build"
+        ],
+        "options": {
+          "buildTarget": "restful:build",
+          "runBuildTargetDependencies": false
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "restful:build:development"
+          },
+          "production": {
+            "buildTarget": "restful:build:production"
+          }
+        }
+      }
+    }
+  }
+}

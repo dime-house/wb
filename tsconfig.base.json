@@ -16,24 +16,24 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@klerick/nx-angular-mf": ["libs/nx-angular-mf/src/index.ts"],
-      "@klerick/nx-angular-mf/loadModule": [
-        "libs/nx-angular-mf/src/loadModule.ts"
-      ],
-      "@wb/back": ["services/back/src/index.ts"],
-      "@wb/const": ["pkgs/const/src/index.ts"],
-      "@wb/db": ["pkgs/db/src/index.ts"],
-      "@wb/env": ["pkgs/env/src/index.ts"],
-      "@wb/express": ["libs/express/src/index.ts"],
-      "@wb/log": ["pkgs/log/src/index.ts"],
-      "@wb/logger": ["libs/logger/src/index.ts"],
-      "@wb/rest": ["pkgs/rest/src/index.ts"],
-      "@wb/restify": ["libs/restify/src/index.ts"],
-      "@wb/server": ["libs/server/src/index.ts"],
-      "@wb/test-shared-library": ["libs/test-shared-library/src/index.ts"],
-      "@wb/type": ["pkgs/type/src/index.ts"],
-      "@wb/types": ["libs/types/src/index.ts"],
-      "@wb/utils": ["pkgs/utils/src/index.ts"]
+//      "@wb/nx-angular-mf": ["libs/nx-angular-mf/src/index.ts"],
+//      "@wb/nx-angular-mf/loadModule": [
+//        "libs/nx-angular-mf/src/loadModule.ts"
+//      ],
+//      "@wb/back": ["apis/back/src/index.ts"],
+//      "@wb/const": ["pkgs/const/src/index.ts"],
+//      "@wb/db": ["pkgs/db/src/index.ts"],
+//      "@wb/env": ["pkgs/env/src/index.ts"],
+//      "@wb/express": ["libs/express/src/index.ts"],
+//      "@wb/log": ["pkgs/log/src/index.ts"],
+//      "@wb/logger": ["libs/logger/src/index.ts"],
+//      "@wb/rest": ["pkgs/rest/src/index.ts"],
+//      "@wb/restify": ["libs/restify/src/index.ts"],
+//      "@wb/server": ["libs/server/src/index.ts"],
+//      "@wb/test-shared-library": ["libs/test-shared-library/src/index.ts"],
+//      "@wb/type": ["pkgs/type/src/index.ts"],
+//      "@wb/types": ["libs/types/src/index.ts"],
+//      "@wb/utils": ["pkgs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -19,6 +19,6 @@
   "@angular/core/testing",
   "@angular/ssr/node",
   "rxjs/testing",
-  "@klerick/nx-angular-mf",
+  "@wb/nx-angular-mf",
   "@angular/platform-server/init"
 ]

@@ -1,5 +1,5 @@
 {
-  "name": "@klerick/nx-angular-mf",
+  "name": "@wb/nx-angular-mf",
   "version": "0.0.1",
   "dependencies": {
     "@jspm/import-map": "^1.1.0",

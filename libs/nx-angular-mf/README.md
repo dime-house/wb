@@ -25,7 +25,7 @@ The builder integrates with [NX](https://nx.dev/) to provide seamless support fo
 Clone this repository and install the dependencies:
 
 ```bash
-npm install @klerick/nx-angular-mf
+npm install @wb/nx-angular-mf
  ```
 ### Usage
 
@@ -37,14 +37,14 @@ Update your project.json file to use the custom builder:
   ...
   "targets": {
     "build": {
-      "executor": "@klerick/nx-angular-mf:build",
+      "executor": "@wb/nx-angular-mf:build",
       "options": {
         ...,
         "mf": {}
       }
     },
     "serve": {
-      "executor": "@klerick/nx-angular-mf:serve",
+      "executor": "@wb/nx-angular-mf:serve",
       "options": {
         ...,
         "mf": {}
@@ -103,7 +103,7 @@ This configuration excludes a dependency from processing, treats Angular core mo
 
 ```typescript
 
-import { loadModule } from '@klerick/nx-angular-mf/loadModule';
+import { loadModule } from '@wb/nx-angular-mf/loadModule';
 
 export const appRoutes: Route[] = [
   {
@@ -126,7 +126,7 @@ import {
   inject,
   ViewContainerRef,
 } from '@angular/core';
-import { loadModule } from '@klerick/nx-angular-mf/loadModule';
+import { loadModule } from '@wb/nx-angular-mf/loadModule';
 
 @Directive({
   selector: '[appDynamic]',

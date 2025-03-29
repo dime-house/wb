@@ -82,6 +82,9 @@
       "preVersionCommand": "npx nx run-many -t build"
     }
   },
+  "cli": {
+    "packageManager": "pnpm"
+  },
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",

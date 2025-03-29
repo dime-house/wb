@@ -1,13 +1,11 @@
 import { BuilderContext, Target } from '@angular-devkit/architect';
 
 const executorToBuilderMap = new Map<string, string>([
+  ['@wb/nx-angular-mf', '@angular-devkit/build-angular:application'],
   [
-    '@klerick/nx-angular-mf',
-    '@angular-devkit/build-angular:application',
-  ], [
     './dist/libs/nx-angular-mf:build',
     '@angular-devkit/build-angular:application',
-  ]
+  ],
 ]);
 
 function cleanBuildTargetOptions(options: any) {

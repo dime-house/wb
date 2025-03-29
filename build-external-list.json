@@ -19,7 +19,7 @@
   "@angular/upgrade/static",
   "@angular/cdk",
   "@angular/ssr",
-  "@klerick/native-federation-ssr/loadModule",
+  "@wb/native-federation-ssr/loadModule",
   "rxjs",
   "rxjs/fetch",
   "rxjs/operators"

@@ -1,7 +1,7 @@
 {
   "name": "@wb/back",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/back/src",
+  "sourceRoot": "apis/back/src",
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -9,11 +9,11 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/services/back",
-        "tsConfig": "services/back/tsconfig.lib.json",
-        "packageJson": "services/back/package.json",
-        "main": "services/back/src/index.ts",
-        "assets": ["services/back/*.md"]
+        "outputPath": "dist/apis/back",
+        "tsConfig": "apis/back/tsconfig.lib.json",
+        "packageJson": "apis/back/package.json",
+        "main": "apis/back/src/index.ts",
+        "assets": ["apis/back/*.md"]
       }
     }
   }
